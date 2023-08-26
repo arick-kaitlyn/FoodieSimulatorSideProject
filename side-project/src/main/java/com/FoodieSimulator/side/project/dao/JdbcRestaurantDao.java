@@ -2,6 +2,9 @@ package com.FoodieSimulator.side.project.dao;
 
 import com.FoodieSimulator.side.project.exception.DaoException;
 import com.FoodieSimulator.side.project.model.Restaurant;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -11,9 +14,11 @@ import java.util.List;
 
 public class JdbcRestaurantDao implements RestaurantDAO {
 
-    private final JdbcRestaurantDao
+    private final JdbcTemplate jdbcTemplate;
 
-    public JdbcRestaurantDao(DataSource dataSource) {jdbcTemplate = new JdbcTemplate(dataSource)};
+    public JdbcRestaurantDao(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     String generalSql = "SELECT restaurantId, name, address1, address2, city, state, zipCode FROM restaurant";
 

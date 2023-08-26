@@ -20,6 +20,10 @@ public class Restaurant {
         this.cuisineId = cuisineId;
     }
 
+    public Restaurant() {
+
+    }
+
     public int getRestaurantId() {
         return restaurantId;
     }
