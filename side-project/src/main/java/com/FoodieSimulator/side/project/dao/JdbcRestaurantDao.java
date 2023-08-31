@@ -2,11 +2,13 @@ package com.FoodieSimulator.side.project.dao;
 
 import com.FoodieSimulator.side.project.exception.DaoException;
 import com.FoodieSimulator.side.project.model.Restaurant;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,16 +66,6 @@ public class JdbcRestaurantDao implements RestaurantDAO {
     }
 
     @Override
-    public List<Restaurant> getPublicRestaurantByMemberId(int memberId) {
-        return null;
-    }
-
-    @Override
-    public List<Restaurant> getPublicRestaurants() {
-        return null;
-    }
-
-    @Override
     public List<Restaurant> getFlaggedRestaurant() {
         return null;
     }
@@ -85,6 +77,27 @@ public class JdbcRestaurantDao implements RestaurantDAO {
 
     @Override
     public Restaurant createRestaurant(Restaurant newRestaurant) {
+        Restaurant restaurant = null;
+
+        try {
+            if (newRestaurant.getName() == null) {
+                int newRestaurantId;
+                String insertRestaurantSql = "INSERT INTO restaurant (name, address1, address2, city, state, zipCode) values (?,?,?,?,?,?) RETURNING restaurantId";
+                newRestaurantId = jdbcTemplate.queryForObject(insertRestaurantSql, int.class, restaurant.getName(), restaurant.getAddress1(), restaurant.getAddress2(), restaurant.getCity(),
+                        restaurant.getState(), restaurant.getZipCode());
+            }
+            newRestaurant = getRestaurantById(newRestaurant.getRestaurantId());
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
+        return newRestaurant;
+    }
+
+
+    @Override
+    public Restaurant updateRestaurant(Restaurant modifiedRestaurant) {
         return null;
     }
 
@@ -93,10 +106,6 @@ public class JdbcRestaurantDao implements RestaurantDAO {
         return 0;
     }
 
-    @Override
-    public Restaurant updateRestaurant(Restaurant modifiedRestaurant) {
-        return null;
-    }
 
     private Restaurant mapRowToRestaurant(SqlRowSet rs) {
         Restaurant restaurant = new Restaurant();
