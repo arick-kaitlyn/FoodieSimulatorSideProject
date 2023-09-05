@@ -8,10 +8,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class JdbcRestaurantDao implements RestaurantDAO {
