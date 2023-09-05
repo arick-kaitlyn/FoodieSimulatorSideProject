@@ -34,25 +34,6 @@ public interface RestaurantDAO {
     List<Restaurant> getRestaurantByMemberId(int memberId);
 
     /*
-    Get all public restaurants from the datastore that are associated to a specific user.
-    Restaurants are ordered alphabetically by name.
-
-    @param memberId the id of the user
-    @return List of all the public restaurant objects associated to the user, or an empty list if none are found.
-     */
-
-    List<Restaurant> getPublicRestaurantByMemberId(int memberId);
-
-    /*
-    Get all restaurants from the datastore that are marked as public.
-    Restaurants are ordered alphabetically by name.
-
-    @return List of all the public Restaurant objects, or an empty list if none are found.
-     */
-
-    List<Restaurant> getPublicRestaurants();
-
-    /*
     Get a list of restaurants from the datastore that are marked as flagged.
     Restaurants are ordered alphabetically by name.
 
@@ -81,15 +62,7 @@ public interface RestaurantDAO {
 
     Restaurant createRestaurant(Restaurant newRestaurant);
 
-    /*
-    Removes a restaurant and any member associations from the bookstore.
-
-    @param restaurantId The id of the Restaurant to remove. If the id is not found, no error will occur.
-     */
-
-    int deleteRestaurantById(int restaurantId);
-
-    /*
+        /*
     Update a restaurant in the bookstore.
     Only the name, address1, address2, city, state, zipcode.
 
@@ -98,6 +71,14 @@ public interface RestaurantDAO {
 
     Restaurant updateRestaurant(Restaurant modifiedRestaurant);
 
+
+    /*
+    Removes a restaurant and any member associations from the bookstore.
+
+    @param restaurantId The id of the Restaurant to remove. If the id is not found, no error will occur.
+     */
+
+    int deleteRestaurantById(int restaurantId);
 }
 
 
