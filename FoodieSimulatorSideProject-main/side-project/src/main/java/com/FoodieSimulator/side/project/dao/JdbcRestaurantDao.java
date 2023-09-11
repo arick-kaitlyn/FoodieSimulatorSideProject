@@ -4,6 +4,7 @@ import com.FoodieSimulator.side.project.exception.DaoException;
 import com.FoodieSimulator.side.project.model.Restaurant;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -25,8 +26,7 @@ public class JdbcRestaurantDao implements RestaurantDAO {
     @Override
     public Restaurant getRestaurantById(int restaurantId) {
         Restaurant restaurant = null;
-        String sql = "SELECT restaurantId, name, address1, address2, city, state, zipCode FROM restaurant" +
-                "WHERE restaurantId = ?";
+        String sql = generalSql + "WHERE restaurantId = ?";
 
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, restaurantId);
@@ -35,6 +35,8 @@ public class JdbcRestaurantDao implements RestaurantDAO {
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
         }
         return restaurant;
     }
@@ -54,25 +56,29 @@ public class JdbcRestaurantDao implements RestaurantDAO {
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
         }
         return restaurants;
     }
 
-    //check if this should be a list or return a restaurant
+    //check if this should be a list or return a restaurant + check memberId to member_id?
     @Override
     public List<Restaurant> getRestaurantByMemberId(int memberId) {
-        List<Restaurant> restuarants = new ArrayList<>();
+        List<Restaurant> restaurants = new ArrayList<>();
 
         try {
-            String sql = "SELECT memberId FROM restaurant WHERE memberId = ?";
+            String sql = "SELECT memberId FROM member WHERE memberId = ?";
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
 
             while (results.next()) {
                 Restaurant restaurant = mapRowToRestaurant(results);
-                restuarants.add(restaurant);
+                restaurants.add(restaurant);
             }
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
         }
         return restaurants;
     }
@@ -83,21 +89,38 @@ public class JdbcRestaurantDao implements RestaurantDAO {
     }
 
     @Override
-    public List<Restaurant> filterRestaurant(String searchTerm, boolean publicOnly, boolean useWildCard) {
-        return null;
+    public List<Restaurant> filterRestaurant(String name, boolean useWildCard) {
+        List<Restaurant> restaurant = new ArrayList<>();
+        String sql = "SELECT restaurant_id, name, address1, address2, city, state, zipCode" +
+                " FROM restaurant " + "WHERE name ILIKE ?;";
+
+        try {
+            if (useWildCard) {
+                name = "%" + name + "%";
+            }
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, name);
+
+            while (results.next()) {
+                restaurant.add(mapRowToRestaurant(results));
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
+        return restaurant;
     }
 
     @Override
     public Restaurant createRestaurant(Restaurant newRestaurant) {
-        Restaurant restaurant = null;
-
         try {
             if (newRestaurant.getName() == null) {
                 String insertRestaurantSql = "INSERT INTO restaurant (name, address1, address2, city, state, zipCode) values (?,?,?,?,?,?) RETURNING restaurantId";
-                int newRestaurantId = jdbcTemplate.queryForObject(insertRestaurantSql, int.class, restaurant.getName(), restaurant.getAddress1(), restaurant.getAddress2(), restaurant.getCity(),
-                        restaurant.getState(), restaurant.getZipCode());
+                int newRestaurantId = jdbcTemplate.queryForObject(insertRestaurantSql, int.class, newRestaurant.getName(), newRestaurant.getAddress1(), newRestaurant.getAddress2(), newRestaurant.getCity(),
+                        newRestaurant.getState(), newRestaurant.getZipCode());
             }
-            newRestaurant = getRestaurantById(newRestaurant.getRestaurantId());
+            //FIX THIS PART!!!
+            //newRestaurant = getRestaurantById(newRestaurant.getRestaurantId());
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         } catch (DataIntegrityViolationException e) {
@@ -108,16 +131,15 @@ public class JdbcRestaurantDao implements RestaurantDAO {
 
 
     @Override
-    public Restaurant updateRestaurant(Restaurant restaurant) {
-        Restaurant updatedRestaurant = null;
+    public Restaurant updateRestaurant(Restaurant updatedRestaurant) {
         String sql = "UPDATE restaurant SET name = ?, address1 = ?, address2 = ?, city = ?, state = ?, zipCode = ?" +
                 " values (?,?,?,?,?,?) WHERE restaurantId = ?'";
 
         try {
-            jdbcTemplate.update(sql, restaurant.getName(), restaurant.getAddress1(), restaurant.getAddress2(),
-                    restaurant.getCity(), restaurant.getState(), restaurant.getZipCode());
+            jdbcTemplate.update(sql, updatedRestaurant.getName(), updatedRestaurant.getAddress1(), updatedRestaurant.getAddress2(),
+                    updatedRestaurant.getCity(), updatedRestaurant.getState(), updatedRestaurant.getZipCode());
 
-            updatedRestaurant.getRestaurantId(restaurant.getRestaurantId())
+            updatedRestaurant = getRestaurantById(updatedRestaurant.getRestaurantId());
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         } catch (DataIntegrityViolationException e) {
@@ -129,13 +151,13 @@ public class JdbcRestaurantDao implements RestaurantDAO {
     //is there any foreign keys i need to delete here?
     @Override
     public int deleteRestaurantById(int restaurantId) {
-        int numberOfRows = 0;
+        int numberOfRows;
         String sql = "DELETE FROM restaurant WHERE restaurantId = ?;";
 
         try {
             numberOfRows = jdbcTemplate.update(sql, restaurantId);
         } catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database")
+            throw new DaoException("Unable to connect to server or database");
         } catch (DataIntegrityViolationException e) {
             throw new DaoException("Data integrity violation", e);
         }

@@ -10,6 +10,10 @@ public class Rating {
         this.isThumbsDown = isThumbsDown;
     }
 
+    public Rating() {
+
+    }
+
     public int getRatingId() {
         return ratingId;
     }
@@ -22,16 +26,16 @@ public class Rating {
         return isThumbsUp;
     }
 
-    public void setThumbsUp(boolean thumbsUp) {
-        isThumbsUp = thumbsUp;
+    public void setThumbsUp(boolean isThumbsUp) {
+        isThumbsUp = isThumbsUp;
     }
 
     public boolean isThumbsDown() {
         return isThumbsDown;
     }
 
-    public void setThumbsDown(boolean thumbsDown) {
-        isThumbsDown = thumbsDown;
+    public void setThumbsDown(boolean isThumbsDown) {
+        isThumbsDown = isThumbsDown;
     }
 
     @Override

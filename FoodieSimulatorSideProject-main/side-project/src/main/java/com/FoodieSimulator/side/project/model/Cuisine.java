@@ -13,6 +13,9 @@ public class Cuisine {
         this.name = name;
     }
 
+    public Cuisine() {
+    }
+
     public int getCuisineId() {
         return cuisineId;
     }

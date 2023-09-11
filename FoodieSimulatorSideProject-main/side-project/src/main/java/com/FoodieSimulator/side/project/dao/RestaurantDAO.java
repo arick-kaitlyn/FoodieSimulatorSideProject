@@ -51,7 +51,7 @@ public interface RestaurantDAO {
     @return List of the filtered restaurant objects, or an empty list is none are found
      */
 
-    List<Restaurant> filterRestaurant(String searchTerm, boolean publicOnly, boolean useWildCard);
+    List<Restaurant> filterRestaurant(String searchTerm, boolean useWildCard);
 
     /*
     Adds a new restaurant to the datastore.
@@ -69,7 +69,7 @@ public interface RestaurantDAO {
     @param modifiedRestaurant the Restaurant object to update
      */
 
-    Restaurant updateRestaurant(Restaurant modifiedRestaurant);
+    Restaurant updateRestaurant(Restaurant updatedRestaurant);
 
 
     /*
